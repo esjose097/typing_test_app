@@ -1,0 +1,90 @@
+/*Hoja de estilos personalizados para la aplicación*/
+
+
+/*Body elements*/
+body{
+    font-family: 'Quattrocento Sans', sans-serif;
+    background: url("Images/backgrounf.png") no-repeat center center;
+    background-attachment: fixed;
+    background-size: cover;
+    color: white;
+}
+
+/*Estilos para los iconos*/
+.meas_container{
+    background-color: rgb(236, 34, 202, 0.5);
+}
+
+.row{
+    font-size: 30px;
+}
+
+.title{
+    font-size: 14px;
+}
+
+.typingIcon{
+    height: 50px;
+}
+
+.change{
+    height: 25px;
+    font-size: 16px;
+}
+
+/*Estilo para la caja de texto*/
+#content{
+    height: 120px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 10px auto;
+    font-size: 30;
+    overflow: hidden;
+    padding: 0 5px;
+    line-height: 40px;
+}
+
+/*Estilos para el input*/
+#input{
+    background-color: rgba(239, 37, 188, 0.3);
+    width: 100%;
+    font-size: 30px;
+    padding: 10px;
+    color: rgb(1, 226, 182);
+}
+
+/*Estilos para el teclado*/
+.keyboard{
+    min-height: 200px;
+    max-height: 300px;
+    background: url("Images/keyboard.png") no-repeat center center;
+    background-size: contain;
+    margin-top: 10px;
+}
+
+/*Estilos boton restart*/
+.restart{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.btn-primary{
+    background: rgba(236, 34, 202, 0.5);
+}
+
+.btn-primary:focus,.btn-primary:active,.btn-primary:hover{
+    background: rgba(236, 34, 202, 0.8);
+}
+
+/*Estilos para los scores positivos y negativos*/
+.scoreDown, .scoreUp{
+    
+}
+
+.scoreDown{
+
+}
+
+.scoreUp{
+
+}
