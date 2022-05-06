@@ -97,3 +97,12 @@ body{
     background-color: greenyellow;
     border-radius: 5px;
 }
+
+/*Estilos para los caracteres positivos y negativos resaltados*/
+.correctCharacter{
+    color: mediumblue;
+}
+
+.wrongCharacter{
+    color: mediumvioletred;
+}

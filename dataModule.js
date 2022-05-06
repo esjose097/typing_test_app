@@ -21,7 +21,7 @@ var dataModule = (function(){
         }
         return newArray;
     };
-
+    //Capitalizador de palabras
     String.prototype.capitalize = function(){
         var newString = '';
         var firstCharCap = this.charAt(0).toUpperCase();
@@ -29,14 +29,14 @@ var dataModule = (function(){
         newString = firstCharCap + remainingChar;
         return newString;
     };
-
+    //Capitalizador de palabras aleatorias
     var capitalizeRandom = function(arrayOfStrings){
         return arrayOfStrings.map(function(currentWord){
             var x = Math.floor(4 * Math.random());
             return (x == 3) ? currentWord.capitalize() : currentWord;
         })
     };
-
+    //Agrega signos de puntuación aleatoriamente a una lista de elementos
     var addRandomPunctuation = function(arrayOfStrings){
         return arrayOfStrings.map(function(currentWord){
             var randomPunctuation;
@@ -45,6 +45,11 @@ var dataModule = (function(){
             randomPunctuation = items[randomIndex];
             return currentWord + randomPunctuation;
         });
+    };
+    //es una callback utilizada para calcular el número de caracteres correctos dentro de la palabra actual
+    var nbCorrectChar;
+    var charCallBack = function(currentElement, index){
+        nbCorrectChar += (currentElement == this.characters.user[index]) ? 1 : 0;
     };
     //Instancia de un objeto con todos los datos que necesitará la aplicación para trabajar
     var appData = 
@@ -87,8 +92,27 @@ var dataModule = (function(){
             totalTest:this.value.correct.length
         }
     };
-    //Método de actualización
-    word.prototype.update = function(value){};
+    //Método de actualización de un objeto tipo word
+    word.prototype.update = function(value){
+        //actualizamos lo puesto por el usuario
+        word.prototype.update = function(value){
+            this.value.user = value;
+
+            //Actualizamos el estado de la palabra ya sea correcta o no.
+            this.value.isCorrect = (this.value.correct == this.value.user);
+
+            //update user characters
+            this.characters.user = this.value.user.split('');
+
+            //Calculamos el número de caracteres correctos
+            nbCorrectChar = 0;
+            charCallBack = charCallBack.bind(this);
+            this.characters.correct.forEach(charCallBack);
+
+            this.characters.totalCorrect = nbCorrectChar
+        }
+
+    };
 
     return {
         //Indicadores - control de testing
@@ -112,10 +136,14 @@ var dataModule = (function(){
         },
 
         reduceTime: function(){}, //Reduce el tiempo segundo por segundo
-
-        testEnded: function(){}, //Revisa si la prueba ya se ha terminado
-
-        testStarted: function(){}, //Revisa si la prueba ya ha comenzado
+        //Revisa si la prueba ya se ha terminado
+        testEnded: function(){
+            return appData.indicators.testEnded;
+        },
+        //Comienza el test
+        testStarted: function(){
+            appData.indicators.testStarted = true;
+        },
 
         //Indicadores
 
@@ -159,8 +187,8 @@ var dataModule = (function(){
             }
             var currentIndex = appData.words.currentWordIndex
             var newWord = new word(currentIndex);
-            appData.words.currentWord = newWord;
-            appData.words.currentWordIndex++; //Esto por alguna razón se activa antes que el resto, solucionar despues
+            appData.words.currentWord = newWord; 
+            appData.words.currentWordIndex++; //<--Esto por alguna razón se activa antes que el resto, solucionar despues
         },
 
         getCurrentWordIndex: function(){
@@ -179,7 +207,10 @@ var dataModule = (function(){
             };
         },
 
-        updateCurrentWord: function(){}, //Actualiza las palabras restantes utilizando "user input"
+        //Actualiza las palabras restantes utilizando "user input"
+        updateCurrentWord: function(value){
+            appData.words.currentWord.update(value);
+        },
 
         getLineReturn(){
             return lineReturn;
