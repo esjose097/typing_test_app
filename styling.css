@@ -78,13 +78,22 @@ body{
 
 /*Estilos para los scores positivos y negativos*/
 .scoreDown, .scoreUp{
-    
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 12px;
 }
 
 .scoreDown{
-
+    background: mediumvioletred;
 }
 
 .scoreUp{
+    background: greenyellow;
+    color: black;
+}
 
+/*Estilos de las palabras resaltadas*/
+.activeWord{
+    background-color: greenyellow;
+    border-radius: 5px;
 }
