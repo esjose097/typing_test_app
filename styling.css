@@ -106,3 +106,10 @@ body{
 .wrongCharacter{
     color: mediumvioletred;
 }
+
+/*Le damos unos ligeros estilos al modal*/
+.results{
+    color: black;
+    font-size: 20px;
+    text-align: center;
+}

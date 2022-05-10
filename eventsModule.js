@@ -9,7 +9,7 @@ var eventsModule = (function(dModule, uModule, cModule, wModule){
     var addEventListeners = function(){
         //idk
         uModule.getDOMElements().textInput.addEventListener('keydown', function(event){
-            console.log(event);
+            //console.log(event);
             if(dModule.testEnded == true)
             {
                 return;
@@ -40,15 +40,38 @@ var eventsModule = (function(dModule, uModule, cModule, wModule){
                 dModule.startTest();
 
                 var b = setInterval(function(){
-                    //calculamos los resultados en el "dataModule"
                     
-                    //Actualizamos el wpm, wpmChange "dataModule"
-
-                    //Actualizamos el cpm, cpmChange "dataModule"
-
+                    //calculamos los resultados en el "dataModule"
+                    var results = {};
+                    //Actualizamos el wpm, wpmChange "dataModule" y lo guardamos en un arreglo dentro de results
+                    [results.wpm, results.wpmChange] = dModule.calculateWpm();
+                    //Actualizamos el cpm, cpmChange "dataModule" y lo guardamos en un arreglo dentro de results
+                    [results.cpm, results.cpmChange] = dModule.calculateCpm();
                     //Actualizamos el accuracy, accuracyChange "dataModule"
-
+                    [results.accuracy, accuracyChange] = dModule.calculateAccuracy();
                     //Actualizamos los resultados en el "UIModule"
+                    uModule.updateResults(results);
+                    //Show modal
+                    if(dModule.timeLeft())
+                    {
+                        //Reducimos el tiempo un segundo en el "dataModule"
+                        var timeLeft = dModule.reduceTime();
+
+                        //Actualizamos el tiempo en el "UIModule"
+                        uModule.updateTimeLeft(timeLeft);
+                    }
+                    else
+                    {
+                        //Terminamos el test
+                        clearInterval(b);
+                        dModule.endTest();
+                        dModule.returnData();
+
+                        //Llenamos el modal
+                        uModule.fillModal(results.wpm);
+                        //Mostramos el modal
+                        uModule.showModal();
+                    }
                 }, 1000);
             }
 
@@ -85,7 +108,17 @@ var eventsModule = (function(dModule, uModule, cModule, wModule){
         });
 
         //Evento de click en el botón "download"
-
+        uModule.getDOMElements().download.addEventListener('click', function(event){
+            if(uModule.isNameEmpty())
+            {
+                uModule.flagNameInput();
+            }
+            else
+            {
+                var dataCertificate = dModule.getCertificateData();
+                cModule.generateCertificate(dataCertificate);
+            }
+        })
     };
 
     //realiza un scroll dentro de la vista media de la ventana sobre la palabra activa

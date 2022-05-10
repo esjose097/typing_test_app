@@ -65,7 +65,7 @@ var dataModule = (function(){
         },
         words: 
         {
-            currentWordIndex: 0, testWords: [], currentWords: {}
+            currentWordIndex: -1, testWords: [], currentWords: {}
         },
     };
 
@@ -125,33 +125,112 @@ var dataModule = (function(){
         initializeTimeLeft: function(){
             appData.indicators.timeLeft = appData.indicators.totalTestTime;
         }, 
+        //Inicia la prueba
+        startTest: function(){
+            appData.indicators.testStarted = true;
+        },
 
-        startTest: function(){}, //Inicia la prueba
-
-        endTest: function(){}, //Termina la prueba
+        //Termina la prueba
+        endTest: function(){
+            appData.indicators.testEnded = true;
+        },
 
         //Regresa el tiempo restante de la prueba
         getTimeLeft: function(){
             return appData.indicators.timeLeft;
         },
 
-        reduceTime: function(){}, //Reduce el tiempo segundo por segundo
+        //Reduce el tiempo segundo por segundo
+        reduceTime: function(){
+            appData.indicators.timeLeft --;
+            return appData.indicators.timeLeft;
+        },
+        //Revisa su aun hay tiempo para continuar la pruebas
+        timeLeft: function(){
+            return appData.indicators.timeLeft != 0;
+        },
         //Revisa si la prueba ya se ha terminado
         testEnded: function(){
             return appData.indicators.testEnded;
         },
         //Comienza el test
         testStarted: function(){
-            appData.indicators.testStarted = true;
+            return appData.indicators.testStarted;
         },
 
         //Indicadores
 
-        calculateWpm: function(){}, //Calcula el "wpm" y el "wpmChange" y los actualiza en "dataApp"
+        //Calcula el "wpm" y el "wpmChange" y los actualiza en "dataApp"
+        calculateWpm: function(){
+            //Se obtiene la cantidad de wpm anterior
+            var wpmOld = appData.results.wpm;
+            //Se obtienen la cantidad de palabras correctas
+            var numOfCorrectWords = appData.results.numOfCorrectWords;
+            //Verificamos que aun quede tiempo
+            if(appData.indicators.timeLeft != appData.indicators.totalTestTime)
+            {
+                appData.results.wpm = Math.round(
+                    60*numOfCorrectWords / (appData.indicators.totalTestTime - appData.indicators.timeLeft)
+                );
+            }
+            else
+            {
+                appData.results.wpm = 0;
+            }
+            appData.results.wpmChange = (appData.results.wpm - wpmOld);
 
-        calculateCpm: function(){}, //calcula el "cpm" y el "cpmChange" y los actualiza en "dataApp"
+            return [appData.results.wpm, appData.results.wpmChange];
+        },
+        //calcula el "cpm" y el "cpmChange" y los actualiza en "dataApp"
+        calculateCpm: function(){
+            //Se obtiene la cantidad de cpm anterior
+            var cpmOld = appData.results.cpm;
+            //Se obtienen la cantidad de caracteres correctos
+            var numOfCorrectCharacters = appData.results.numOfCorrectCharacters;
+            //Verificamos que aun quede tiempo
+            if(appData.indicators.timeLeft != appData.indicators.totalTestTime)
+            {
+                appData.results.cpm = Math.round(
+                    60 * numOfCorrectCharacters / (appData.indicators.totalTestTime - appData.indicators.timeLeft)
+                );
+            }
+            else
+            {
+                appData.results.cpm = 0;
+            }
+            appData.results.cpmChange = (appData.results.cpm - cpmOld);
 
-        calculateAccuracy: function(){}, //calcula el "accuracy" y el "accuracyChange" y los actualiza en "dataApp"
+            return [appData.results.cpm, appData.results.cpmChange];
+        },
+        //calcula el "accuracy" y el "accuracyChange" y los actualiza en "dataApp"
+        calculateAccuracy: function(){
+            //Se obtiene la cantidad de accuracy anterior
+            var accuracyOld = appData.results.accuracy;
+            //Se obtienen la cantidad de caracteres correctos
+            var numOfCorrectCharacters = appData.results.numOfCorrectCharacters;
+            //Obtenemos el número de caracteres ya probados
+            var numOfTestCharacters = appData.results.numOfTestCharacters;
+            //Verificamos que aun quede tiempo
+            if(appData.indicators.timeLeft != appData.indicators.totalTestTime)
+            {
+                if(numOfTestCharacters != 0)
+                {
+                    appData.results.accuracy = Math.round(
+                        (numOfCorrectCharacters / numOfTestCharacters)) * 100;    
+                }
+                else
+                {
+                    appData.results.accuracy = 0;    
+                }
+            }
+            else
+            {
+                appData.results.accuracy = 0;
+            }
+            appData.results.accuracyChange = (appData.results.accuracy - accuracyOld);
+
+            return [appData.results.accuracy, appData.results.accuracyChange];            
+        },
 
         //palabras de prueba o "test words"
         //Llena "words.testWords"
@@ -180,15 +259,20 @@ var dataModule = (function(){
             if(appData.words.currentWordIndex > -1)
             {
                 //Actualizamos el número de palabras correctas
-
+                if(appData.words.currentWords.value.isCorrect == true)
+                {
+                    appData.results.numOfCorrectWords ++;
+                }
                 //Actualizamos el número de caracteres correctos
+                appData.results.numOfCorrectCharacters += appData.words.currentWords.characters.totalCorrect;
 
                 //Actualizamos el número de caracteres probados
+                appData.results.numOfTestCharacters += appData.words.currentWords.characters.totalTest;
             }
-            var currentIndex = appData.words.currentWordIndex
+            appData.words.currentWordIndex++;
+            var currentIndex = appData.words.currentWordIndex;
             var newWord = new word(currentIndex);
-            appData.words.currentWord = newWord; 
-            appData.words.currentWordIndex++; //<--Esto por alguna razón se activa antes que el resto, solucionar despues
+            appData.words.currentWords = newWord;
         },
 
         getCurrentWordIndex: function(){
@@ -197,7 +281,7 @@ var dataModule = (function(){
 
         //Regresa la palabra actual
         getCurrentWord: function(){
-            var currentWord = appData.words.currentWord;
+            var currentWord = appData.words.currentWords;
             return {
                 value:
                 {
@@ -209,7 +293,7 @@ var dataModule = (function(){
 
         //Actualiza las palabras restantes utilizando "user input"
         updateCurrentWord: function(value){
-            appData.words.currentWord.update(value);
+            appData.words.currentWords.update(value);
         },
 
         getLineReturn(){
@@ -218,6 +302,14 @@ var dataModule = (function(){
 
         returnData(){
             console.log(appData);
+        },
+
+        getCertificateData(){
+            return {
+                wpm: appData.results.wpm,
+                accuracy: appData.results.accuracy,
+
+            }
         }
     }
 

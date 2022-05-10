@@ -20,11 +20,13 @@ var UIModule = (function(){
         //User input
         textInput: document.querySelector('#input'),
         nameInput: document.querySelector('.form-group'),
+        nameField: document.getElementById('name'),
         //Test words
         content:document.getElementById("content"),
         activeWord:'',
         //modal
-        modal: document.querySelector('#myModal')
+        modal: $('#myModal'),
+        download: document.getElementById('download')
     };
     //Realiza un split sobre un string es decir convierte un string en una lista
     var splitArray = function(string){
@@ -58,13 +60,42 @@ var UIModule = (function(){
         return (index < userValue.length) ? (currentCharacter == userValue[index] 
             ? 'correctCharacter' : 'wrongCharacter') : '0'
     };
+    //Simplemente se encarga de dar un tono mas claro a la opacidad en base su valor
+    var fadeElement = function(element){
+        element.style.opacity = 1;
+        setTimeout(function(){
+            element.style.opacity = 0.9;
+        }, 100);
+    }
+
+    //Se encarga de realizar una actualización visual en de los parametros que se le mandan.
+    var updateChange = function(value, changeElement){
+        var classToAdd, html;
+        [classToAdd, html] = (value >= 0) ? ['scoreUp', '+' + value] : ['scoreDown', value];
+
+        if(changeElement == DOMElements.accuracyChange)
+        {
+            html += '%';
+        }
+
+        //Actualiza el elemento a cambiar
+        changeElement.innerHTML = html;
+        //estilo de el elemento
+        changeElement.removeAttribute('class');
+
+        changeElement.className = classToAdd;
+
+        //Fade elements
+        fadeElement(changeElement);
+    }
 
     return {
         
         //Obtiene elementos del DOM
         getDOMElements: function(){
             return {
-                textInput: DOMElements.textInput
+                textInput: DOMElements.textInput,
+                download: DOMElements.download
             };
         },
 
@@ -74,20 +105,80 @@ var UIModule = (function(){
         },
 
         //resultados
-        updateResults: function(){},
+        updateResults: function(results){
+            //Actualizamos el wpm
+            DOMElements.wpm.innerHTML = results.wpm;
+            //Actualizamos el cpm
+            DOMElements.cpm.innerHTML = results.cpm;
+            //Actualizamos el Accuary
+            DOMElements.accuracy.innerHTML = results.accuracy + '%';
+            //Actualización de cambios o "changes"
+            updateChange(results.wpmChange, DOMElements.wpmChange);
+            updateChange(results.cpmChange, DOMElements.cpmChange);
+            updateChange(results.accuracyChange, DOMElements.accuracyChange);
+        },
+        //Cargamos de datos el modal
+        fillModal: function(wpm){
+            var results;
+            if(wpm <40)
+            {
+                results = 
+                {
+                    type: 'turtle',
+                    image: 'tortuga.jpg',
+                    level: 'beginner'
+                };
+            }
+            else if(wpm < 70)
+            {
+                results = 
+                {
+                    type: 'hourse',
+                    image: 'caballo.jpg',
+                    level: 'Average'
+                };
+            }
+            else
+            {
+                results = 
+                {
+                    type: 'puma',
+                    image: 'puma.jpg',
+                    level: 'Expert'
+                };
+            }
+            var html = '<div class="results"><p>You are a %type%!</p><p>You type at a speed of %wpm% words per minute!</p><img width="300" height="200" class="rounded-circle" src="./Images/%image%" alt=%alt%></div>';
+            html = html.replace('%type%', results.type);
+            html = html.replace('%wpm%', wpm);
+            html = html.replace('%image%', results.image);
+            html = html.replace('%alt%', results.type);
+            
 
-        fillModal: function(){},
+            //Insertamos dentro del modal
+            DOMElements.nameInput.insertAdjacentHTML('beforebegin',html);
 
-        showModal: function(){},
+            //Guardamos los datos en el boton de desarga
+            DOMElements.download.setAttribute('level', results.level);
+        },
+
+        //Mostramos el modal es decir la pantalla final
+        showModal: function(){
+            DOMElements.modal.modal('show');
+            
+        },
 
         //User input
         inputFocus: function(){
             DOMElements.textInput.focus();
         },
 
-        isNameEmpty: function(){},
+        isNameEmpty: function(){
+            return DOMElements.nameField == '';
+        },
 
-        flagNameInput: function(){},
+        flagNameInput: function(){
+            DOMElements.nameField.style.borderColor = 'red';
+        },
 
         spacePressed: function(event){
             return event.data == " ";

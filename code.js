@@ -4,5 +4,5 @@
  * @author: José Casal 
  * Este archivo js no es un módulo como tal es mas bien una especie de funciones extras de manejor de elementos*/
 
-eventsModule.init(60, 0);
+eventsModule.init(2, 1);
 dataModule.returnData();
